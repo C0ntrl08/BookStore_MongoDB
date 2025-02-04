@@ -1,5 +1,7 @@
 using BookStore.Models;
 using BookStore.Services;
+using Microsoft.OpenApi.Models;
+using System.Reflection;
 
 namespace BookStore
 {
@@ -20,7 +22,28 @@ namespace BookStore
             builder.Services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.PropertyNamingPolicy = null);
             // Line below - required only for minimal APIs
             //builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Version = "v1",
+                    Title = "BookStore API",
+                    Description = "An ASP.NET Core Web API for managing books",
+                    Contact = new OpenApiContact
+                    {
+                        Name = "Firstname Lastname",
+                        Url = new Uri("https://example.com/contact")
+                    },
+                    License = new OpenApiLicense
+                    {
+                        Name = "Testing License",
+                        Url = new Uri ("https://example.com/license")
+                    }
+                });
+
+                var xmlFileName = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFileName));
+            });
 
             var app = builder.Build();
 
@@ -30,6 +53,7 @@ namespace BookStore
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI();
+                
             }
 
             // Configure the HTTP request pipeline.
